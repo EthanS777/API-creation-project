@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search through Pokedex!</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+    <script>
+      // JS
+      let init = () => {
+       console.log("Testing")
+      }
+
+      window.onload = init;
+    </script>
+
+    <h1>Pokedex!</h1>
+
+    <!-- Build basic UI -->
+   <div id="formSections">
+    <div id="getNextEvolution">
+        <h2>Get Next Evolution</h2>
+        <label for="pokemon-name">Enter Pokemon Name:</label>
+        <input type="text" id="pokemon-name" name="pokemonName">
+        
+        <div id="radio-buttons">
+            <label><input type="radio" name="evolutionMethod" value="GET"> GET</label>
+            <label><input type="radio" name="evolutionMethod" value="HEAD"> HEAD</label>
+        </div>
+        
+        <button type="button">Send Request</button>
+    </div>
+
+    <div id="getName">
+        <h2>Get Name</h2>
+        <label for="pokemon-type">Enter Type:</label>
+        <input type="text" id="pokemon-type" name="pokemonType"><br>
+        
+        <label for="pokemon-weakness">Enter Weakness:</label>
+        <input type="text" id="pokemon-weakness" name="pokemonWeakness">
+        
+        <div id="radio-buttons">
+            <label><input type="radio" name="nameMethod" value="GET"> GET</label>
+            <label><input type="radio" name="nameMethod" value="HEAD"> HEAD</label>
+        </div>
+        
+        <button type="button">Send Request</button>
+    </div>
+    
+    <div id="getImage">
+        <h2>Show Image!</h2>
+        <label for="pokemon-name">Enter Pokemon Name:</label>
+        <input type="text" id="pokemon-image" name="pokemonImage">
+        
+        <div id="radio-buttons">
+            <label><input type="radio" name="imageMethod" value="GET"> GET</label>
+            <label><input type="radio" name="imageMethod" value="HEAD"> HEAD</label>
+        </div>
+        
+        <button type="button">Send Request</button>
+    </div>
+
+    <div id="getAllPokemon">
+        <h2>Get All Pokemon</h2>
+        
+        <div id="radio-buttons">
+            <label><input type="radio" name="allPokemonMethod" value="GET"> GET</label>
+            <label><input type="radio" name="allPokemonMethod" value="HEAD"> HEAD</label>
+        </div>
+        
+        <button type="button">Send Request</button>
+    </div>
+
+  </div>
+
+    <div id="content"> </div>
+
+</body>
+</html>
