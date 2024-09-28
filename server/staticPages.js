@@ -12,11 +12,11 @@ const getIndex = (request, response) => {
 };
 
 const getStyles = (request, response) => {
-    response.writeHead(200, { 'Content-Type': 'text/css'});
-    response.write(styles);
-    response.end();
-}
+  response.writeHead(200, { 'Content-Type': 'text/css' });
+  response.write(styles);
+  response.end();
+};
 
 module.exports = {
-  getIndex, getStyles
+  getIndex, getStyles,
 };
