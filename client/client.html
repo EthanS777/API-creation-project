@@ -30,13 +30,14 @@
                 const obj = await response.json();
                 content.innerHTML = " ";
 
+                // go through each JSON obj, print out info
                 obj.forEach(pokemon => {
-                    content.innerHTML += `<p>${JSON.stringify(pokemon)}</p>`
+                    content.innerHTML += `<p>${JSON.stringify(pokemon.id)}- Name: ${pokemon.name}, Type: ${pokemon.type.join(' & ')}, Height: ${pokemon.height}, Weight: ${pokemon.weight}, Weaknesses: ${pokemon.weaknesses.join(' & ')}, Next Evolution: ${pokemon.next_evolution ? pokemon.next_evolution.map(evo => evo.name).join(', ') : 'Nothing'}</p>`;
                 })
             }
             // else don't print JSON, just status (HEAD)
             else {
-                content.innerHTML = `<h3> Request Received, thanks! Status: ${response.status} </h3>`;
+                content.innerHTML = `<h2> Request Received, thanks! Status: ${response.status} </h2>`;
             }
         }
 
@@ -45,9 +46,9 @@
             const url = form.getAttribute('action');
             const method = form.querySelector('input[name="method"]:checked').value;
             const content = document.querySelector("#content");
-            let pokemonName = form.querySelector("#pokemon-name").value;
+            let inputName = form.querySelector("#pokemon-name").value;
 
-            let queryUrl = `${url}?name=${pokemonName}`;
+            let queryUrl = `${url}?name=${inputName}`;
 
             const response = await fetch(queryUrl, {
                 method: method,
@@ -60,18 +61,18 @@
             if (method === 'GET') {
                 // Pokemon found: print out pokemon and its next evolution
                 if (response.status === 200) {
-                    const obj = await response.json(); 
+                    const obj = await response.json();
                     content.innerHTML = `<h2>Pokemon: ${obj.name}</h2>
                            <h2>Next Evolution(s): ${obj.next_evolution.map(evo => evo.name).join(', ')}</h2>`;
-                } else if (response.status === 404) {
-                    const errorObj = await response.json(); 
-                    content.innerHTML = `<h3>${errorObj.message}, status: ${response.status}</h3>`;
+                } else if (response.status === 404 || response.status === 400) {
+                    const errorObj = await response.json();
+                    content.innerHTML = `<h2>${errorObj.message}, status: ${response.status}</h2>`;
                 }
             } else {
                 // HEAD: just show status, no JSON
-                response.status === 200 
-                ? content.innerHTML = `<h3>Request Received, thanks! Status: ${response.status}</h3>` 
-                : content.innerHTML = `<h3>Invalid Input: ${response.status}</h3>`
+                response.status === 200
+                    ? content.innerHTML = `<h2>Request Received, thanks! Status: ${response.status}</h2>`
+                    : content.innerHTML = `<h2>Invalid Request: ${response.status}</h2>`
             }
         }
 
@@ -80,9 +81,9 @@
             const url = form.getAttribute('action');
             const method = form.querySelector('input[name="method"]:checked').value;
             const content = document.querySelector("#content");
-            let pokemonName = form.querySelector("#pokemon-name").value;
+            let inputName = form.querySelector("#pokemon-name").value;
 
-            const queryUrl = `${url}?name=${pokemonName}`;
+            const queryUrl = `${url}?name=${inputName}`;
 
             const response = await fetch(queryUrl, {
                 method: method,
@@ -93,47 +94,73 @@
 
             // GET request
             if (method === 'GET') {
-              if (response.status === 200) {
-               const obj = await response.json();
-               content.innerHTML = `<h2>Pokemon: ${obj.name}</h2> <img src="${obj.image}" />`;
-              }
-              else if (response.status === 404) {
-               const errorObj = await response.json();
-               content.innerHTML = `<h3>${errorObj.message}, status: ${response.status}</h3>`
-              }
+                if (response.status === 200) {
+                    const obj = await response.json();
+                    content.innerHTML = `<h2>Pokemon: ${obj.name}</h2> <img src="${obj.image}" />`;
+                }
+                else if (response.status === 404 || response.status === 400) {
+                    const errorObj = await response.json();
+                    content.innerHTML = `<h2>${errorObj.message}, status: ${response.status}</h2>`
+                }
             }
             // HEAD
             else {
-                response.status === 200 
-                ? content.innerHTML = `<h3>Request Received, thanks! Status: ${response.status}</h3>`
-                : content.innerHTML = `<h3>Invalid Input: ${response.status}</h3>`
+                response.status === 200
+                    ? content.innerHTML = `<h2>Request Received, thanks! Status: ${response.status}</h2>`
+                    : content.innerHTML = `<h2>Invalid Request: ${response.status}</h2>`
             }
         }
 
+        let handleNameResponse = async (form) => {
+            const url = form.getAttribute('action');
+            const method = form.querySelector('input[name="method"]:checked').value;
+            const content = document.querySelector("#content");
+            let inputType = form.querySelector("#pokemon-type").value;
+            let inputWeakness = form.querySelector("#pokemon-weakness").value;
+
+            const queryUrl = `${url}?type=${inputType}&weakness=${inputWeakness}`;
+
+            const response = await fetch(queryUrl, {
+                method: method,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            // vary output based on GET/HEAD
+            if (method === 'GET') {
+                if (response.status === 200) {
+                  const obj = await response.json();
+                  content.innerHTML = `<h2>Pokemon Names that fit your search: <br><br>${obj.name.join(", ")}</h2>`;
+                }
+                else if (response.status === 400 || response.status === 404) {
+                  const errorObj = await response.json();
+                  content.innerHTML = `<h2>${errorObj.message}, status: ${response.status}</h2>`
+                }
+            }
+            // HEAD
+            else {
+                response.status === 200
+                    ? content.innerHTML = `<h2>Request Received, thanks! Status: ${response.status}</h2>`
+                    : content.innerHTML = `<h2>Invalid Request: ${response.status}</h2>`
+            }
+        };
+
         let init = () => {
-            // console.log("Testing")
             let getAllForm = document.querySelector("#allForm");
             let getEvolutionForm = document.querySelector("#evolutionForm");
             let getImageForm = document.querySelector("#imageForm");
+            let getNameForm = document.querySelector("#nameForm");
 
-            let getAll = (e) => {
+            let getForm = (form, func) => (e) => {
                 e.preventDefault();
-                handleAllResponse(getAllForm);
-            };
-
-            let getEvolution = (e) => {
-                e.preventDefault();
-                handleEvoResponse(getEvolutionForm);
+                func(form);
             }
 
-            let getImage = (e) => {
-                e.preventDefault();
-                handleImageResponse(getImageForm);
-            }
-
-            getAllForm.addEventListener('submit', getAll);
-            getEvolutionForm.addEventListener('submit', getEvolution);
-            getImageForm.addEventListener('submit', getImage);
+            getAllForm.addEventListener('submit', getForm(getAllForm, handleAllResponse));
+            getEvolutionForm.addEventListener('submit', getForm(getEvolutionForm, handleEvoResponse));
+            getImageForm.addEventListener('submit', getForm(getImageForm, handleImageResponse));
+            getNameForm.addEventListener('submit', getForm(getNameForm, handleNameResponse));
         }
 
         window.onload = init;

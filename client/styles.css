@@ -1,7 +1,33 @@
 #formSections {
-    height: 200px;
+    height: 20%;
     border: 5px solid black;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    max-width: 100%;
+    flex-wrap: wrap;
+}
+
+#formSections form {
+ flex: 1 1 200px;
+ margin: 10px;
+ width: 100%;
+}
+
+body {
+    background-color: rgb(227, 238, 162);
+}
+
+#content p {
+    font-weight: bold;
+}
+
+#content img {
+    width: 200px;
+    height: 200px;
+    
+}
+
+#content {
+    text-align: center;
 }

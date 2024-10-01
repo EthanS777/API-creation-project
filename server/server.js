@@ -17,12 +17,14 @@ const handleGet = (request, response, url) => {
     endpoints.getEvolution(request, response);
   } else if (url.pathname === '/getImage') {
     endpoints.getImage(request, response);
-  }  else {
+  }  else if (url.pathname === '/getName') {
+    endpoints.getName(request, response);
+  } else {
     endpoints.getNonExistent(request, response);
   }
 };
 
-//  handling POST requests (ENDPOINTS: )
+//  handling POST requests (ENDPOINTS: /addPoke, /)
 // const handlePost = (request, response, url) => {
 //     we'll do this later
 // }

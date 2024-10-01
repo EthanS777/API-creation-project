@@ -1,10 +1,8 @@
 const fs = require('fs');
 
-// get ALL the pokemon from the JSON file
-const getPokemon = () => {
-  const pokedex = fs.readFileSync(`${__dirname}/../data/pokedex.json`);
-  return JSON.parse(pokedex);
-};
+// load/parse pokemon from the JSON file - at startup (not in func)
+const pokedex = JSON.parse(fs.readFileSync(`${__dirname}/../data/pokedex.json`));
+const getPokemon = () => pokedex;
 
 // main re-usable respondJSON code
 const respondJSON = (request, response, status, object) => {
@@ -31,20 +29,21 @@ const getAll = (request, response) => {
 };
 
 
-// endpoint /getEvolution: return 200 if evolution found, else 404
+// endpoint /getEvolution: return 200 if evolution found, 400 if name not entered, else 404
 // has query params ?name=
 const getEvolution = (request, response) => {
   const pokemon = getPokemon();
+  // use name query param
   const isValid = request.query.name;
   let evolvedPoke = null;
 
-  // if name not even entered
+  // if name not even entered, 400- missing params
   if (!isValid) {
     const errorJSON = {
       message: "Missing Pokemon name!",
-      id: 'notFound'
+      id: 'userMissingParams'
     };
-    return respondJSON(request, response, 404, errorJSON);
+    return respondJSON(request, response, 400, errorJSON);
   }
 
   // loop through each pokemon, check if the name is in query, and set evolvedPoke--
@@ -61,7 +60,7 @@ const getEvolution = (request, response) => {
     }
   })
 
-  // if nothing was found, return 404
+  // if entered but nothing found, return 404
   if (!evolvedPoke) {
      const errorJSON = {
        message: "No next evolution found!",
@@ -75,10 +74,11 @@ const getEvolution = (request, response) => {
    return respondJSON(request, response, 200, evolvedPoke);
 }
 
-// getImage: return 200 if found, 404 if not- similar to getEvolution
+// getImage: return 200 if found, 400/404 if not- similar to getEvolution
 // also has query params ?name=
 const getImage = (request, response) => {
    const pokemon = getPokemon();
+   // use name query param
    const isValid = request.query.name;
    let foundImage;
 
@@ -92,7 +92,17 @@ const getImage = (request, response) => {
      }
    });
 
-   // if no text was found/entered, return 404
+   // if user didn't type anything, 400
+   if (!isValid) {
+    const errorJSON = {
+      message: "Missing Pokemon name!",
+      id: "userMissingParams"
+    };
+
+    return respondJSON(request, response, 400, errorJSON);
+   }
+
+   // if text was entered but not found, return 404
   if (!foundImage) {
     const errorJSON = {
       message: "No valid pokemon entered!",
@@ -103,6 +113,51 @@ const getImage = (request, response) => {
 
   // if found, 200 - return URL
   return respondJSON(request, response, 200, foundImage);
+};
+
+// getName: will return 200, 400/404
+const getName = (request, response) => {
+  const pokemon = getPokemon();
+  const { type, weakness } = request.query;
+
+  // make array for list of names
+  let names = [];
+
+  pokemon.forEach(poke => {
+    let added = false;
+
+    // if type entered and exists in poke, add name
+    if (type && poke.type.includes(type)) {
+      names.push(poke.name);
+      added = true;
+    }
+    // if weakness entered and exists in poke, also add name
+    if (!added && weakness && poke.weaknesses.includes(weakness)) {
+      names.push(poke.name);
+    }
+  });
+
+  // if array isn't empty by now, return with either 200, 400, or 404
+  if (names.length > 0) { 
+   respondJSON(request, response, 200, { name: names });
+  }
+  // 404 
+  else if (names.length == 0 && (type || weakness)){
+   const errorJSON = {
+    message: "No pokemon names found for your search!",
+    id: "notFound"
+   }
+   respondJSON(request, response, 404, errorJSON);
+  }
+  // 400 with NO input at all
+  else if (names.length == 0 && (!type && !weakness)) {
+    const errorJSON = {
+      message: "Missing type or weakness!",
+      id: "userMissingParams",
+    };
+
+    respondJSON(request, response, 400, errorJSON);
+  }
 }
 
 // will return 404 on non-existent endpoint
@@ -116,5 +171,5 @@ const getNonExistent = (request, response) => {
 };
 
 module.exports = {
-  getPokemon, getAll, getNonExistent, getEvolution, getImage
+  getPokemon, getAll, getNonExistent, getEvolution, getImage, getName
 };
