@@ -8,6 +8,11 @@ const getPokemon = () => pokedex;
 const respondJSON = (request, response, status, object) => {
   const content = JSON.stringify(object);
 
+  if (status === 204) {
+    response.writeHead(status);
+    return response.end();
+  }
+
   response.writeHead(status, {
     'Content-Type': 'application/json',
     'Content-Length': Buffer.byteLength(content, 'utf8'),
@@ -18,16 +23,15 @@ const respondJSON = (request, response, status, object) => {
     response.write(content);
   }
 
-  response.end();
+  return response.end();
 };
 
 // will return 200 success at endpoint /getAll
 const getAll = (request, response) => {
   const pokemon = getPokemon();
 
-  respondJSON(request, response, 200, pokemon);
+  return respondJSON(request, response, 200, pokemon);
 };
-
 
 // endpoint /getEvolution: return 200 if evolution found, 400 if name not entered, else 404
 // has query params ?name=
@@ -40,73 +44,73 @@ const getEvolution = (request, response) => {
   // if name not even entered, 400- missing params
   if (!isValid) {
     const errorJSON = {
-      message: "Missing Pokemon name!",
-      id: 'userMissingParams'
+      message: 'Missing Pokemon name!',
+      id: 'userMissingParams',
     };
     return respondJSON(request, response, 400, errorJSON);
   }
 
   // loop through each pokemon, check if the name is in query, and set evolvedPoke--
   // -- IF it has a next evolution
-  pokemon.forEach(poke => {
+  pokemon.forEach((poke) => {
     if (poke.name.toLowerCase() === isValid.toLowerCase()) {
       // if there IS a next evolution
       if (poke.next_evolution) {
         evolvedPoke = {
           name: poke.name,
-          next_evolution: poke.next_evolution
-        }
+          next_evolution: poke.next_evolution,
+        };
       }
     }
-  })
+  });
 
   // if entered but nothing found, return 404
   if (!evolvedPoke) {
-     const errorJSON = {
-       message: "No next evolution found!",
-       id: 'notFound'
-     }
+    const errorJSON = {
+      message: 'No next evolution found!',
+      id: 'notFound',
+    };
 
-     return respondJSON(request, response, 404, errorJSON);
+    return respondJSON(request, response, 404, errorJSON);
   }
 
   // else return the 200, found the next evolution
-   return respondJSON(request, response, 200, evolvedPoke);
-}
+  return respondJSON(request, response, 200, evolvedPoke);
+};
 
 // getImage: return 200 if found, 400/404 if not- similar to getEvolution
 // also has query params ?name=
 const getImage = (request, response) => {
-   const pokemon = getPokemon();
-   // use name query param
-   const isValid = request.query.name;
-   let foundImage;
+  const pokemon = getPokemon();
+  // use name query param
+  const isValid = request.query.name;
+  let foundImage;
 
-   // loop through pokemon - if entered name is found, set foundImage
-   pokemon.forEach(poke => {
-     if (poke.name === isValid) {
-        foundImage = {
-          name: poke.name,
-          image: poke.img
-        };
-     }
-   });
+  // loop through pokemon - if entered name is found, set foundImage
+  pokemon.forEach((poke) => {
+    if (poke.name === isValid) {
+      foundImage = {
+        name: poke.name,
+        image: poke.img,
+      };
+    }
+  });
 
-   // if user didn't type anything, 400
-   if (!isValid) {
+  // if user didn't type anything, 400
+  if (!isValid) {
     const errorJSON = {
-      message: "Missing Pokemon name!",
-      id: "userMissingParams"
+      message: 'Missing Pokemon name!',
+      id: 'userMissingParams',
     };
 
     return respondJSON(request, response, 400, errorJSON);
-   }
+  }
 
-   // if text was entered but not found, return 404
+  // if text was entered but not found, return 404
   if (!foundImage) {
     const errorJSON = {
-      message: "No valid pokemon entered!",
-      id: "notFound"
+      message: 'No valid pokemon entered!',
+      id: 'notFound',
     };
     return respondJSON(request, response, 404, errorJSON);
   }
@@ -121,9 +125,9 @@ const getName = (request, response) => {
   const { type, weakness } = request.query;
 
   // make array for list of names
-  let names = [];
+  const names = [];
 
-  pokemon.forEach(poke => {
+  pokemon.forEach((poke) => {
     let added = false;
 
     // if type entered and exists in poke, add name
@@ -138,27 +142,109 @@ const getName = (request, response) => {
   });
 
   // if array isn't empty by now, return with either 200, 400, or 404
-  if (names.length > 0) { 
-   respondJSON(request, response, 200, { name: names });
-  }
-  // 404 
-  else if (names.length == 0 && (type || weakness)){
-   const errorJSON = {
-    message: "No pokemon names found for your search!",
-    id: "notFound"
-   }
-   respondJSON(request, response, 404, errorJSON);
-  }
-  // 400 with NO input at all
-  else if (names.length == 0 && (!type && !weakness)) {
+  if (names.length > 0) {
+    respondJSON(request, response, 200, { name: names });
+  } else if (names.length === 0 && (type || weakness)) { // 404
     const errorJSON = {
-      message: "Missing type or weakness!",
-      id: "userMissingParams",
+      message: 'No pokemon names found for your search!',
+      id: 'notFound',
+    };
+    respondJSON(request, response, 404, errorJSON);
+  } else if (names.length === 0 && (!type && !weakness)) { // 400 with NO input at all
+    const errorJSON = {
+      message: 'Missing type or weakness!',
+      id: 'userMissingParams',
     };
 
     respondJSON(request, response, 400, errorJSON);
   }
-}
+};
+
+// add a pokemon! 201
+const addPoke = (request, response) => {
+  const {
+    name, type, weaknesses, nextEvo, img,
+  } = request.body;
+
+  // if no name entered, return 400
+  if (!name) {
+    const errorJSON = {
+      message: 'Name required!',
+      id: 'nameMissing',
+    };
+    return respondJSON(request, response, 400, errorJSON);
+  }
+
+  // if pokemon with same name already exists, return a 400
+  const pokeExists = pokedex.find((poke) => poke.name.toLowerCase() === name.toLowerCase());
+
+  if (pokeExists) {
+    const errorJSON = {
+      message: 'This pokemon already exists!',
+      id: 'badRequest',
+    };
+    return respondJSON(request, response, 400, errorJSON);
+  }
+
+  // if not provided, default to empty
+  const newPoke = {
+    name,
+    type: type || [],
+    weaknesses: weaknesses || [],
+    next_evolution: nextEvo || [],
+    img: img || '',
+  };
+
+  // add newly created one to list
+  pokedex.push(newPoke);
+
+  // send back 201 (created) code
+  return respondJSON(request, response, 201, { message: 'New Pokemon added!', newPoke });
+};
+
+// update a pokemon! 204
+const updatePoke = (request, response) => {
+  const {
+    name, type, weaknesses, nextEvo, img,
+  } = request.body;
+
+  // same as addPoke.. if no name entered, 400
+  if (!name) {
+    const errorJSON = {
+      message: 'Name required!',
+      id: 'nameMissing',
+    };
+
+    return respondJSON(request, response, 400, errorJSON);
+  }
+
+  // check for name in the pokedex, see if it matches the name typed
+  const pokemon = pokedex.find((poke) => poke.name.toLowerCase() === name.toLowerCase());
+
+  // if it doesn't, return 404 not found
+  if (!pokemon) {
+    const errorJSON = {
+      message: "That pokemon doesn't exist!",
+      id: 'notFound',
+    };
+
+    return respondJSON(request, response, 404, errorJSON);
+  }
+
+  // update the pokemon
+  // pokemon.type = type || pokemon.type;
+  // pokemon.weaknesses = weaknesses || pokemon.weaknesses;
+  // pokemon.next_evolution = nextEvo || pokemon.next_evolution;
+  // pokemon.img = img || pokemon.img;
+
+  pokemon.type = type ? type.split(',') : pokemon.type; // Handle type as an array
+  pokemon.weaknesses = weaknesses ? weaknesses.split(',') : pokemon.weaknesses;
+  pokemon.next_evolution = nextEvo ? nextEvo.split(',') : pokemon.next_evolution;
+  pokemon.img = img || pokemon.img;
+
+  // return 204
+  return respondJSON(request, response, 204);
+};
 
 // will return 404 on non-existent endpoint
 const getNonExistent = (request, response) => {
@@ -171,5 +257,5 @@ const getNonExistent = (request, response) => {
 };
 
 module.exports = {
-  getPokemon, getAll, getNonExistent, getEvolution, getImage, getName
+  getPokemon, getAll, getNonExistent, getEvolution, getImage, getName, addPoke, updatePoke,
 };

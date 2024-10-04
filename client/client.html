@@ -96,7 +96,8 @@
             if (method === 'GET') {
                 if (response.status === 200) {
                     const obj = await response.json();
-                    content.innerHTML = `<h2>Pokemon: ${obj.name}</h2> <img src="${obj.image}" />`;
+                    content.innerHTML = `<h2>Pokemon: ${obj.name}</h2>`;
+                    obj.image == "" ? content.innerHTML += "<h2>No Image!</h2>" : content.innerHTML += `<img src=${obj.image} />`
                 }
                 else if (response.status === 404 || response.status === 400) {
                     const errorObj = await response.json();
@@ -130,12 +131,12 @@
             // vary output based on GET/HEAD
             if (method === 'GET') {
                 if (response.status === 200) {
-                  const obj = await response.json();
-                  content.innerHTML = `<h2>Pokemon Names that fit your search: <br><br>${obj.name.join(", ")}</h2>`;
+                    const obj = await response.json();
+                    content.innerHTML = `<h2>Pokemon Names that fit your search: <br><br>${obj.name.join(", ")}</h2>`;
                 }
                 else if (response.status === 400 || response.status === 404) {
-                  const errorObj = await response.json();
-                  content.innerHTML = `<h2>${errorObj.message}, status: ${response.status}</h2>`
+                    const errorObj = await response.json();
+                    content.innerHTML = `<h2>${errorObj.message}, status: ${response.status}</h2>`
                 }
             }
             // HEAD
@@ -146,11 +147,91 @@
             }
         };
 
+        let handleAddResponse = async (form) => {
+            const url = form.getAttribute('action');
+            const method = form.getAttribute('method');
+            const content = document.querySelector("#content");
+            const name = form.querySelector("#nameField");
+            const type = form.querySelector("#typeField");
+            const weaknesses = form.querySelector("#weaknessField");
+            const nextEvo = form.querySelector("#nextEvoField");
+            const img = form.querySelector("#imgField");
+
+            const formData = `name=${name.value}&type=${type.value}&weaknesses=${weaknesses.value}&nextEvo=${nextEvo.value}&img=${img.value}`;
+
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Length': formData.length,
+                    'Accept': 'application/json'
+                },
+                body: formData
+            });
+
+            const obj = await response.json();
+
+            switch (response.status) {
+                case 201:
+                    content.innerHTML = `<h2>${obj.message}</h2>`;
+                    // also reset the form if created
+                    form.reset();
+                    break;
+                case 400:
+                    content.innerHTML = `<h2>${obj.message}</h2>`;
+                    break;
+            }
+        };
+
+        let handleUpdateResponse = async (form) => {
+            const url = form.getAttribute('action');
+            const method = form.getAttribute('method');
+            const content = document.querySelector("#content");
+            const name = form.querySelector("#nameField");
+            const type = form.querySelector("#typeField");
+            const weaknesses = form.querySelector("#weaknessField");
+            const nextEvo = form.querySelector("#nextEvoField");
+            const img = form.querySelector("#imgField");
+
+            const formData = `name=${name.value}&type=${type.value}&weaknesses=${weaknesses.value}&nextEvo=${nextEvo.value}&img=${img.value}`;
+
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Length': formData.length,
+                    'Accept': 'application/json'
+                },
+                body: formData
+            });
+
+            // For 204, just print HTML, no JSON to await
+            if (response.status === 204) {
+                content.innerHTML = `<h2>Pokemon Updated!</h2>`;
+                form.reset();
+                return;
+            }
+
+            const obj = await response.json();
+
+            switch (response.status) {
+                case 400:
+                    content.innerHTML = `<h2>${obj.message}</h2>`;
+                    break;
+                case 404: 
+                    content.innerHTML = `<h2>${obj.message}</h2>`;
+                    break;
+            }
+
+        }
+
         let init = () => {
             let getAllForm = document.querySelector("#allForm");
             let getEvolutionForm = document.querySelector("#evolutionForm");
             let getImageForm = document.querySelector("#imageForm");
             let getNameForm = document.querySelector("#nameForm");
+            let addPokeForm = document.querySelector("#addForm");
+            let updatePokeForm = document.querySelector("#updateForm");
 
             let getForm = (form, func) => (e) => {
                 e.preventDefault();
@@ -161,6 +242,8 @@
             getEvolutionForm.addEventListener('submit', getForm(getEvolutionForm, handleEvoResponse));
             getImageForm.addEventListener('submit', getForm(getImageForm, handleImageResponse));
             getNameForm.addEventListener('submit', getForm(getNameForm, handleNameResponse));
+            addPokeForm.addEventListener('submit', getForm(addPokeForm, handleAddResponse));
+            updatePokeForm.addEventListener('submit', getForm(updatePokeForm, handleUpdateResponse));
         }
 
         window.onload = init;
@@ -183,7 +266,7 @@
             <input type="submit" value="Send Request">
         </form>
 
-        <h2>Get Name</h2>
+        <h2>Get Names</h2>
         <form id="nameForm" action="/getName" method="GET">
             <label for="pokemon-type">Enter Type:</label>
             <input type="text" id="pokemon-type" name="pokemonType"><br>
@@ -219,6 +302,41 @@
             </div>
 
             <input type="submit" value="Send Request">
+        </form>
+
+        <h2>Add Pokemon!</h2>
+        <form id="addForm" action="/addPoke" method="post">
+            <label for="name">Name*: </label>
+            <input id="nameField" type="text" name="name" required />
+            <label for="type">Type(s): </label>
+            <input id="typeField" type="text" name="type" />
+            <label for="weaknesses">Weakness(es): </label>
+            <input id="weaknessField" type="text" name="weaknesses" />
+            <label for="nextEvo">Next Evolution(s):</label>
+            <input id="nextEvoField" type="text" name="nextEvo" />
+            <label for="img">Image URL: </label>
+            <input id="imgField" type="text" name="img" />
+            <input type="submit" value="Add" />
+        </form>
+
+        <h2>Update Pokemon</h2>
+        <form id="updateForm" action="/updatePoke" method="post">
+            <label for="name">Name*: </label>
+            <input id="nameField" type="text" name="name" required />
+
+            <label for="type">Type(s): </label>
+            <input id="typeField" type="text" name="type" />
+
+            <label for="weaknesses">Weakness(es): </label>
+            <input id="weaknessField" type="text" name="weaknesses" />
+
+            <label for="nextEvo">Next Evolution(s):</label>
+            <input id="nextEvoField" type="text" name="nextEvo" />
+
+            <label for="img">Image URL: </label>
+            <input id="imgField" type="text" name="img" />
+
+            <input type="submit" value="Update" />
         </form>
 
     </div>
