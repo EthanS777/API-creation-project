@@ -1,17 +1,18 @@
 #formSections {
-    height: 20%;
+    height: auto;
     border: 5px solid black;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: flex-start;
     max-width: 100%;
     flex-wrap: wrap;
 }
 
 #formSections form {
- flex: 1 1 200px;
- margin: 10px;
+ flex: 1 1 300px;
+ margin: 15px;
  width: 100%;
+ box-sizing: border-box;
 }
 
 body {
@@ -25,7 +26,6 @@ body {
 #content img {
     width: 200px;
     height: 200px;
-    
 }
 
 #content {

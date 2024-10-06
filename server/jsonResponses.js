@@ -54,18 +54,26 @@ const getEvolution = (request, response) => {
   // -- IF it has a next evolution
   pokemon.forEach((poke) => {
     if (poke.name.toLowerCase() === isValid.toLowerCase()) {
-      // if there IS a next evolution
-      if (poke.next_evolution) {
+      // if there IS a next evolution (array)
+      if (Array.isArray(poke.next_evolution) && poke.next_evolution.length > 0) {
         evolvedPoke = {
           name: poke.name,
-          next_evolution: poke.next_evolution,
+          next_evolution: poke.next_evolution.map(evo => ({
+             name: evo.name || '',
+          }))
         };
       }
     }
   });
 
-  // if entered but nothing found, return 404
-  if (!evolvedPoke) {
+  if (evolvedPoke) {
+    // return the 200, found the next evolution
+    console.log(evolvedPoke);
+    return respondJSON(request, response, 200, evolvedPoke);
+  }
+  
+  // else if entered but nothing found, return 404
+  else {
     const errorJSON = {
       message: 'No next evolution found!',
       id: 'notFound',
@@ -73,9 +81,6 @@ const getEvolution = (request, response) => {
 
     return respondJSON(request, response, 404, errorJSON);
   }
-
-  // else return the 200, found the next evolution
-  return respondJSON(request, response, 200, evolvedPoke);
 };
 
 // getImage: return 200 if found, 400/404 if not- similar to getEvolution
@@ -88,7 +93,7 @@ const getImage = (request, response) => {
 
   // loop through pokemon - if entered name is found, set foundImage
   pokemon.forEach((poke) => {
-    if (poke.name === isValid) {
+    if (poke.name.toLowerCase() === isValid.toLowerCase()) {
       foundImage = {
         name: poke.name,
         image: poke.img,
@@ -191,7 +196,7 @@ const addPoke = (request, response) => {
     name,
     type: type || [],
     weaknesses: weaknesses || [],
-    next_evolution: nextEvo || [],
+    next_evolution: [ { name: nextEvo } ] || [],
     img: img || '',
   };
 
@@ -231,15 +236,10 @@ const updatePoke = (request, response) => {
     return respondJSON(request, response, 404, errorJSON);
   }
 
-  // update the pokemon
-  // pokemon.type = type || pokemon.type;
-  // pokemon.weaknesses = weaknesses || pokemon.weaknesses;
-  // pokemon.next_evolution = nextEvo || pokemon.next_evolution;
-  // pokemon.img = img || pokemon.img;
-
-  pokemon.type = type ? type.split(',') : pokemon.type; // Handle type as an array
+  // update pokemon
+  pokemon.type = type ? type.split(',') : pokemon.type;
   pokemon.weaknesses = weaknesses ? weaknesses.split(',') : pokemon.weaknesses;
-  pokemon.next_evolution = nextEvo ? nextEvo.split(',') : pokemon.next_evolution;
+  pokemon.next_evolution = nextEvo ? [ { name: nextEvo.split(',') } ] : pokemon.next_evolution;
   pokemon.img = img || pokemon.img;
 
   // return 204

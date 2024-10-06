@@ -31,9 +31,20 @@
                 content.innerHTML = " ";
 
                 // go through each JSON obj, print out info
-                obj.forEach(pokemon => {
-                    content.innerHTML += `<p>${JSON.stringify(pokemon.id)}- Name: ${pokemon.name}, Type: ${pokemon.type.join(' & ')}, Height: ${pokemon.height}, Weight: ${pokemon.weight}, Weaknesses: ${pokemon.weaknesses.join(' & ')}, Next Evolution: ${pokemon.next_evolution ? pokemon.next_evolution.map(evo => evo.name).join(', ') : 'Nothing'}</p>`;
-                })
+                if (obj.length == 151) {
+                    obj.forEach(pokemon => {
+                        content.innerHTML += `<p>${pokemon.id}- Name: ${pokemon.name}, Type: ${pokemon.type.join(' & ')}, Height: ${pokemon.height}, Weight: ${pokemon.weight}, Weaknesses: ${pokemon.weaknesses.join(' & ')}</p>`;
+                    })
+                }
+                else if (obj.length >= 152) {
+                    obj.forEach(pokemon => {
+                        if (pokemon.id <= 151) {
+                            content.innerHTML += `<p>${pokemon.id} - Name: ${pokemon.name}, Type: ${pokemon.type.join(' & ')}, Height: ${pokemon.height}, Weight: ${pokemon.weight}, Weaknesses: ${pokemon.weaknesses.join(' & ')}</p>`;
+                        } else if (!pokemon.id) {
+                            content.innerHTML += `<p>ADDED - Name: ${pokemon.name}, Type: ${pokemon.type.join(' & ')}, Weaknesses: ${pokemon.weaknesses.join(' & ')}</p>`;
+                        }
+                    });
+                }
             }
             // else don't print JSON, just status (HEAD)
             else {
@@ -218,7 +229,7 @@
                 case 400:
                     content.innerHTML = `<h2>${obj.message}</h2>`;
                     break;
-                case 404: 
+                case 404:
                     content.innerHTML = `<h2>${obj.message}</h2>`;
                     break;
             }
