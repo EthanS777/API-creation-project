@@ -12,6 +12,8 @@ const handleGet = (request, response, url) => {
     staticPage.getIndex(request, response);
   } else if (url.pathname === '/styles.css') {
     staticPage.getStyles(request, response);
+  } else if (url.pathname === '/docs') {
+    staticPage.getDocumentation(request, response);
   } else if (url.pathname === '/getAll') {
     endpoints.getAll(request, response);
   } else if (url.pathname === '/getEvolution') {
@@ -39,7 +41,7 @@ const parseBody = (request, response, handler) => {
     body.push(chunk);
   });
 
-  // CHANGE THIS: server needs to accept *both* JSON and URL-encoded formats
+  // Server needs to accept *both* JSON and URL-encoded formats
   request.on('end', () => {
     const bodyString = Buffer.concat(body).toString();
     const contentType = request.headers['content-type'];

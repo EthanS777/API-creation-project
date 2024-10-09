@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation</title>
+
+    <style>
+        body {
+            background-color: rgb(227, 227, 249);
+            text-align: center;
+        }
+
+        h3 {
+            text-decoration: underline;
+        }
+
+        #usageEx {
+            background-color: rgb(187, 187, 187);
+            width: 30%;
+            margin-left: 35%;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="/">Back to Project</a>
+    <h1>Endpoints:</h1>
+
+    <h3>/getAll</h3>
+       <p>Supports methods GET & HEAD</p>
+        <p>Query parameter(s): none</p>
+        <p>Returns: JSON with pokemon info. Format: [{id: int, num: string, name: string, img: string, type: [string], height: string, weight: string, weaknesses: [string], next_evolution: [{ num: string, name: string }]}] </p>
+        <p>Usage example: /getAll, returns above format for each pokemon in list</p>
+
+    <h3>/getEvolution</h3>
+        <p>Supports methods GET & HEAD</p>
+        <p>Query parameter(s): name. Required*</p>
+        <p>Returns: JSON object with name/next evolution name(s). Format: {name: string, next_evolution: [{name: string}]}</p>
+        <p id="usageEx">Usage example for /getEvolution?name=Pikachu: {"name": "Pikachu","next_evolution": [{"name": "Raichu"}]}</p>
+        <p>/getEvolution by itself returns 400</p>
+
+    <h3>/getName</h3>
+        <p>Supports methods GET & HEAD</p>
+        <p>Query parameter(s): type, weakness. At least one required*</p>
+        <p>Returns: JSON with names. Format: name: [ strings ]</p>
+        <p id="usageEx">Usage example for /getName?type=Ice: {"name": ["Dewgong","Cloyster","Jynx","Lapras","Articuno"]}</p>
+        <p>/getName by itself returns 400</p>
+
+    <h3>/getImage</h3>
+        <p>Supports methods GET & HEAD</p>
+        <p>Query parameter(s): name. Required*</p>
+        <p>Returns: JSON with name/image URL. Format: {name: string, image: string}</p>
+        <p id="usageEx">Usage example: /getImage?name=pikachu - {"name": "Pikachu", "image": "http://www.serebii.net/pokemongo/pokemon/025.png"}</p>
+        <p>/getImage by itself returns 400</p>
+
+    <h3>/addPoke</h3>
+       <p>Supports method POST</p>
+       <p>Body parameter(s): name, type, weaknesses, nextEvo, img. Name required*, others optional</p>
+       <p>Returns: JSON representing the new pokemon. Format: {name: string, type?: [string(s)], weaknesses?: [string(s)], next_evolution?: [{name:[string]}], img?: string}</p>
+       <p id="usageEx">Usage example with name*: /addPoke - {"name": "Ethan","type": ["Fire"],"weaknesses": [],"next_evolution": [{"name": ""}],"img": ""}</p>
+       <p>No name/existing pokemon returns 400</p>
+
+    <h3>/updatePoke</h3>
+       <p>Supports method POST</p>
+       <p>Body parameter(s): name, type, weaknesses, nextEvo, img. Name required*, others optional</p>
+       <p>Returns: JSON representing the updated pokemon info. Format: {name: string, type?: [string(s)], weaknesses?: [string(s)], next_evolution?: [{name:[string]}], img?: string}</p>
+       <p id="usageEx">Usage example with name*: /updatePoke - {"name": "Ethan","type": ["Ice"],"weaknesses": [],"next_evolution": [{"name": ""}],"img": ""}</p>
+       <p>No name returns 400</p>
+
+</body>
+</html>

@@ -77,7 +77,7 @@
                            <h2>Next Evolution(s): ${obj.next_evolution.map(evo => evo.name).join(', ')}</h2>`;
                 } else if (response.status === 404 || response.status === 400) {
                     const errorObj = await response.json();
-                    content.innerHTML = `<h2>${errorObj.message}, status: ${response.status}</h2>`;
+                    content.innerHTML = `<h2>${errorObj.message} Status: ${response.status}</h2>`;
                 }
             } else {
                 // HEAD: just show status, no JSON
@@ -112,7 +112,7 @@
                 }
                 else if (response.status === 404 || response.status === 400) {
                     const errorObj = await response.json();
-                    content.innerHTML = `<h2>${errorObj.message}, status: ${response.status}</h2>`
+                    content.innerHTML = `<h2>${errorObj.message} Status: ${response.status}</h2>`
                 }
             }
             // HEAD
@@ -147,7 +147,7 @@
                 }
                 else if (response.status === 400 || response.status === 404) {
                     const errorObj = await response.json();
-                    content.innerHTML = `<h2>${errorObj.message}, status: ${response.status}</h2>`
+                    content.innerHTML = `<h2>${errorObj.message} Status: ${response.status}</h2>`
                 }
             }
             // HEAD
@@ -184,12 +184,12 @@
 
             switch (response.status) {
                 case 201:
-                    content.innerHTML = `<h2>${obj.message}</h2>`;
+                    content.innerHTML = `<h2>${obj.message} Status: ${response.status}</h2>`;
                     // also reset the form if created
                     form.reset();
                     break;
                 case 400:
-                    content.innerHTML = `<h2>${obj.message}</h2>`;
+                    content.innerHTML = `<h2>${obj.message} Status: ${response.status}</h2>`;
                     break;
             }
         };
@@ -227,10 +227,10 @@
 
             switch (response.status) {
                 case 400:
-                    content.innerHTML = `<h2>${obj.message}</h2>`;
+                    content.innerHTML = `<h2>${obj.message} Status: ${response.status}</h2>`;
                     break;
                 case 404:
-                    content.innerHTML = `<h2>${obj.message}</h2>`;
+                    content.innerHTML = `<h2>${obj.message} Status: ${response.status}</h2>`;
                     break;
             }
 
@@ -259,13 +259,15 @@
 
         window.onload = init;
     </script>
+    
+    <a href="/docs">To Documentation Page</a>
 
     <h1>Pokedex!</h1>
 
     <!-- Build basic UI -->
     <div id="formSections">
-        <h2>Get Next Evolution</h2>
         <form id="evolutionForm" action="/getEvolution" method="GET">
+            <h2>Get Next Evolution</h2>
             <label for="pokemon-name">Enter Pokemon Name:</label>
             <input type="text" id="pokemon-name" name="pokemonName">
 
@@ -277,8 +279,8 @@
             <input type="submit" value="Send Request">
         </form>
 
-        <h2>Get Names</h2>
         <form id="nameForm" action="/getName" method="GET">
+            <h2>Get Names</h2>
             <label for="pokemon-type">Enter Type:</label>
             <input type="text" id="pokemon-type" name="pokemonType"><br>
 
@@ -293,8 +295,8 @@
             <input type="submit" value="Send Request">
         </form>
 
-        <h2>Get All Pokemon!</h2>
         <form id="allForm" action="/getAll" method="GET">
+            <h2>Get All Pokemon!</h2>
             <div id="radio-buttons">
                 <label><input type="radio" name="method" value="GET" checked> GET</label>
                 <label><input type="radio" name="method" value="HEAD"> HEAD</label>
@@ -303,9 +305,9 @@
             <input type="submit" value="Send Request">
         </form>
 
-        <h2>Get Image</h2>
         <form id="imageForm" action="/getImage" method="GET">
-            <label for="pokemon-name">Enter Pokemon Name:</label>
+            <h2>Get Image</h2>
+            <label for="pokemon-name">Enter Pokemon Name (lowercase):</label>
             <input type="text" id="pokemon-name" name="pokemonName">
             <div id="radio-buttons">
                 <label><input type="radio" name="method" value="GET" checked> GET</label>
@@ -315,37 +317,53 @@
             <input type="submit" value="Send Request">
         </form>
 
-        <h2>Add Pokemon!</h2>
-        <form id="addForm" action="/addPoke" method="post">
+        <form id="addForm" action="/addPoke" method="POST">
+            <h2>Add Pokemon!</h2>
             <label for="name">Name*: </label>
-            <input id="nameField" type="text" name="name" required />
+            <input id="nameField" type="text" name="name" />
+            <br>
             <label for="type">Type(s): </label>
             <input id="typeField" type="text" name="type" />
+            <br>
             <label for="weaknesses">Weakness(es): </label>
             <input id="weaknessField" type="text" name="weaknesses" />
+            <br>
             <label for="nextEvo">Next Evolution(s):</label>
             <input id="nextEvoField" type="text" name="nextEvo" />
+            <br>
             <label for="img">Image URL: </label>
             <input id="imgField" type="text" name="img" />
+            <br>
             <input type="submit" value="Add" />
         </form>
 
-        <h2>Update Pokemon</h2>
-        <form id="updateForm" action="/updatePoke" method="post">
+
+        <form id="updateForm" action="/updatePoke" method="POST">
+            <h2>Update Pokemon</h2>
             <label for="name">Name*: </label>
-            <input id="nameField" type="text" name="name" required />
+            <input id="nameField" type="text" name="name" />
+
+            <br>
 
             <label for="type">Type(s): </label>
             <input id="typeField" type="text" name="type" />
 
+            <br>
+
             <label for="weaknesses">Weakness(es): </label>
             <input id="weaknessField" type="text" name="weaknesses" />
+
+            <br>
 
             <label for="nextEvo">Next Evolution(s):</label>
             <input id="nextEvoField" type="text" name="nextEvo" />
 
+            <br>
+
             <label for="img">Image URL: </label>
             <input id="imgField" type="text" name="img" />
+
+            <br>
 
             <input type="submit" value="Update" />
         </form>
