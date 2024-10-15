@@ -85,7 +85,7 @@ const getEvolution = (request, response) => {
 // also has query params ?name=
 const getImage = (request, response) => {
   const pokemon = getPokemon();
-  // use name query param - if valid, make it lowercase 
+  // use name query param - if valid, make it lowercase
   const isValid = request.query.name ? request.query.name.toLowerCase() : '';
   let foundImage;
 
@@ -135,12 +135,13 @@ const getName = (request, response) => {
 
     // if type entered and exists in poke, add name
     // make sure input is case-insensitive
-    if (type && poke.type.map(typeTime => typeTime.toLowerCase()).includes(type.toLowerCase())) {
+    if (type && poke.type.map((typeTime) => typeTime.toLowerCase()).includes(type.toLowerCase())) {
       names.push(poke.name);
       added = true;
     }
     // if weakness entered and exists in poke, also add name, plus case-insensitivity
-    if (!added && weakness && poke.weaknesses.map(weaknessTime => weaknessTime.toLowerCase()).includes(weakness.toLowerCase())) {
+    if (!added && weakness && poke.weaknesses.map((weaknessTime) => weaknessTime.toLowerCase())
+      .includes(weakness.toLowerCase())) {
       names.push(poke.name);
     }
   });
