@@ -218,7 +218,7 @@
 
             // For 204, just print HTML, no JSON to await
             if (response.status === 204) {
-                content.innerHTML = `<h2>Pokemon Updated!</h2>`;
+                content.innerHTML = `<h2>Pokemon Updated! Status: ${response.status}</h2>`;
                 form.reset();
                 return;
             }
@@ -307,7 +307,7 @@
 
         <form id="imageForm" action="/getImage" method="GET">
             <h2>Get Image</h2>
-            <label for="pokemon-name">Enter Pokemon Name (lowercase):</label>
+            <label for="pokemon-name">Enter Pokemon Name:</label>
             <input type="text" id="pokemon-name" name="pokemonName">
             <div id="radio-buttons">
                 <label><input type="radio" name="method" value="GET" checked> GET</label>
@@ -345,22 +345,22 @@
 
             <br>
 
-            <label for="type">Type(s): </label>
+            <label for="type">Add Type(s): </label>
             <input id="typeField" type="text" name="type" />
 
             <br>
 
-            <label for="weaknesses">Weakness(es): </label>
+            <label for="weaknesses">Add Weakness(es): </label>
             <input id="weaknessField" type="text" name="weaknesses" />
 
             <br>
 
-            <label for="nextEvo">Next Evolution(s):</label>
+            <label for="nextEvo">Add Next Evolution(s):</label>
             <input id="nextEvoField" type="text" name="nextEvo" />
 
             <br>
 
-            <label for="img">Image URL: </label>
+            <label for="img">Add Image URL: </label>
             <input id="imgField" type="text" name="img" />
 
             <br>

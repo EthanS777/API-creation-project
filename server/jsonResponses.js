@@ -85,8 +85,8 @@ const getEvolution = (request, response) => {
 // also has query params ?name=
 const getImage = (request, response) => {
   const pokemon = getPokemon();
-  // use name query param
-  const isValid = request.query.name;
+  // use name query param - if valid, make it lowercase 
+  const isValid = request.query.name ? request.query.name.toLowerCase() : '';
   let foundImage;
 
   // loop through pokemon - if entered name is found, set foundImage
@@ -134,12 +134,13 @@ const getName = (request, response) => {
     let added = false;
 
     // if type entered and exists in poke, add name
-    if (type && poke.type.includes(type)) {
+    // make sure input is case-insensitive
+    if (type && poke.type.map(typeTime => typeTime.toLowerCase()).includes(type.toLowerCase())) {
       names.push(poke.name);
       added = true;
     }
-    // if weakness entered and exists in poke, also add name
-    if (!added && weakness && poke.weaknesses.includes(weakness)) {
+    // if weakness entered and exists in poke, also add name, plus case-insensitivity
+    if (!added && weakness && poke.weaknesses.map(weaknessTime => weaknessTime.toLowerCase()).includes(weakness.toLowerCase())) {
       names.push(poke.name);
     }
   });
@@ -189,11 +190,28 @@ const addPoke = (request, response) => {
     return respondJSON(request, response, 400, errorJSON);
   }
 
+  // for the new pokemon object:
+  // make sure type/weakness is an array or else bugs in code
+  // if array then return type, but if not, still always return array
+  let typesList = [];
+  if (Array.isArray(type)) {
+    typesList = type;
+  } else if (type) {
+    typesList = type.split(',');
+  }
+
+  let weaknessesList = [];
+  if (Array.isArray(weaknesses)) {
+    weaknessesList = weaknesses;
+  } else if (weaknesses) {
+    weaknessesList = weaknesses.split(',');
+  }
+
   // if not provided, default to empty
   const newPoke = {
     name,
-    type: type || [],
-    weaknesses: weaknesses || [],
+    type: typesList,
+    weaknesses: weaknessesList,
     next_evolution: [{ name: nextEvo }] || [],
     img: img || '',
   };
